@@ -22,6 +22,7 @@
     "@fullcalendar/icalendar": "^5.8.0",
     "@silvermine/videojs-quality-selector": "^1.2.5",
     "alpinejs": "^3.2.2",
+    "axios": "^0.21.1",
     "chart.js": "^3.4.1",
     "flatpickr": "^4.6.9",
     "fullcalendar": "^5.8.0",
@@ -37,6 +38,9 @@
     "autoprefixer": "^10.3.1",
     "postcss": "^8.3.5",
     "tailwindcss": "^2.2.4",
-    "typescript": "^4.3.5"
+    "ts-loader": "^9.2.3",
+    "typescript": "^4.3.5",
+    "webpack": "^5.46.0",
+    "webpack-cli": "^4.7.2"
   }
 }
