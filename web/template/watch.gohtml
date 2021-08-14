@@ -13,20 +13,20 @@
     {{if .IsAdminOfCourse}}
     <script async src="/static/assets/ts-dist/watch-admin.js?v={{.IndexData.VersionTag}}"></script>{{end}}
 </head>
-<body class="h-full overflow-hidden">
+<body class="h-full">
 {{template "header" .IndexData.TUMLiveContext}}
 <div id="watchPageMainWrapper" class="flex md:flex-row w-full flex-wrap">
     <input type="hidden" id="streamID" value="{{$stream.Model.ID}}">
-    <div id="watchWrapper"
-         class="w-full {{if $course.ChatEnabled}}md:w-4/6 lg:w-5/6{{end}} overflow-scroll overflow-x-hidden scrollbarThin">
+    <input type="hidden" id="courseID" value="{{$stream.CourseID}}">
+    <div id="watchWrapper" class="w-full overflow-scroll overflow-x-hidden scrollbarThin flex">
         <noscript><p class="vjs-no-js">
                 To view this video please enable JavaScript.
             </p></noscript>
         <div id="watchContent"
-             class="transition-all motion-reduce:transition-none duration-300 ease w-full pt-3 px-2 md:px-8 {{if $course.ChatEnabled}}md:w-4/6{{end}} lg:w-8/12 2xl:max-w-screen-xl mx-auto mx:h-full">
+             class="transition-all motion-reduce:transition-none duration-300 ease w-full pt-3 px-2 md:px-8 mx-auto">
             <video
                     id="my-video"
-                    class="video-js w-full"
+                    class="video-js w-full theater-mode"
                     controls
                     preload="auto"
                     {{if or .IndexData.TUMLiveContext.Stream.LiveNow .IndexData.TUMLiveContext.Stream.Recording}}poster="/public/default_banner.jpg">
@@ -142,43 +142,11 @@
                 </ul>
             {{end}}
         </div>
+
+        {{if $course.ChatEnabled}}
+            {{template "chat"}}
+        {{end}}
     </div>
-    {{if $course.ChatEnabled}}
-        <div id="chatWrapper"
-             class="hidden md:flex flex-col w-full md:h-full border-t-2 mt-2 md:mt-0 md:border-t-0 md:dark:border-l dark:border-secondary dark:bg-secondary-lighter bg-gray-100 md:w-2/6 lg:w-1/6 text-1 pt-3">
-            <div id="chatBox" class="overflow-scroll overflow-x-hidden overflow-y-scroll" style="flex: 2;">
-                {{range $chat := $stream.Chats}}
-                    <div class="rounded p-2 mx-2">
-                        <div class="flex flex-row">
-                            <p class="flex-grow font-semibold {{if $chat.Admin}}text-warn{{end}}">{{$chat.UserName}}</p>
-                            <p class="text-5 font-thin">
-                                {{printf "%02d:%02d" $chat.CreatedAt.Hour $chat.CreatedAt.Minute}}
-                            </p>
-                        </div>
-                        <p class="text-3 break-words">
-                            {{$chat.Message}}
-                        </p>
-                    </div>
-                {{end}}
-            </div>
-            <form id="chatForm"
-                  class="border-b-2 focus-within:border-gray-300 dark:border-secondary dark:bg-secondary-lighter inset-x-0 flex px-3"
-                  style="">
-                <input type="checkbox" name="anonymous" id="anonymous" class="hidden">
-                <label for="anonymous" class="flex items-center cursor-pointer text-4 hover:text-1"
-                       title="Don't show my name.">
-                    <i class="fas fa-ghost"></i>
-                </label>
-                <label for="chatInput" class="hidden">Chat input</label><input
-                        maxlength="200"
-                        {{if not (.IndexData.TUMLiveContext.User)}}disabled
-                        placeholder="Log in to chat" {{else}}
-                        placeholder="Send a message" {{end}}autocomplete="off" id="chatInput" type="text"
-                        class="border-none">
-                <button class="fas fa-paper-plane text-4 hover:text-1 focus:outline-none"></button>
-            </form>
-        </div>
-    {{end}}
 </div>
 
 <script src="/static/node_modules/video.js/dist/video.min.js"></script>
@@ -206,7 +174,7 @@
     // @ts-ignore
     let player = videojs('my-video', {
         {{if $stream.LiveNow}}liveui: true,{{end}}
-        fluid: true,
+        fluid: false,
         playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
         html5: {
             reloadSourceOnError: true,

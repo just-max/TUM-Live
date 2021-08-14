@@ -1,0 +1,163 @@
+{{define "chat"}}
+    <script>
+        const messages = {
+            "admin": true,
+            "msgs": []
+        }
+        fetch("http://10.0.0.3:8081/api/chat/c/3/s/26/messages").then(response => response.json())
+            .then(data => {
+                messages.msgs = data;
+                let event = new CustomEvent("messages-updated", {
+                    detail: {
+                        msgs: JSON.parse(JSON.stringify(messages.msgs)) // deep copy elem, otherwise alipne wouldn't pick up on it.
+                    }
+                });
+                window.dispatchEvent(event);
+            });
+
+        function dispatchChange(){
+            let event = new CustomEvent("messages-updated", {
+                detail: {
+                    msgs: JSON.parse(JSON.stringify(messages.msgs)) // deep copy elem, otherwise alipne wouldn't pick up on it.
+                }
+            });
+            window.dispatchEvent(event);
+        }
+
+        function orderVotes() {
+            messages.msgs = messages.msgs.sort(function (a, b) {
+                return b.votes - a.votes;
+            });
+            dispatchChange();
+        }
+
+        function orderTime() {
+            messages.msgs = messages.msgs.sort(function (a, b) {
+                return b.time - a.time;
+            });
+            dispatchChange();
+        }
+
+        function timeConverter(UNIX_timestamp) {
+            let a = new Date(UNIX_timestamp * 1000);
+            let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            let year = a.getFullYear();
+            let month = months[a.getMonth()];
+            let date = a.getDate();
+            let hour = a.getHours();
+            let min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();
+            let sec = a.getSeconds();
+            return hour + ':' + min;
+        }
+
+        function messagedata() {
+            return messages;
+        }
+    </script>
+
+    <div x-data x-show="false" id="chatplaceholder" style="width: 350px;height: calc(100vh - 5rem)"
+         class="border border-gray-600 rounded shadow p-2 m-2 overflow-y-scroll">
+        <p class="text-white">Please enable javascript to use the chat</p>
+    </div>
+    <div class="flex flex-col border border-gray-600 rounded" style="width: 450px;height: calc(100vh - 5rem)">
+        <!--chat wrapper-->
+        <div class="text-white border-b border-gray-600 p-2">
+            <form>
+                <label class="inline-flex items-center">
+                    <input type="checkbox" class="form-checkbox h-4 w-4 text-white" checked><span
+                            class="ml-2 text-white">Moderated</span>
+                </label>
+                <br>
+                <label class="inline-flex items-center">
+                    <input type="checkbox" class="form-checkbox h-4 w-4 text-white"><span
+                            class="ml-2 text-white">Slow mode</span>
+                </label>
+            </form>
+            <div class="grid gap-x-2 grid-cols-2" x-data="{orderlatest:true}">
+                <div @click="orderlatest=false; orderVotes()" class="bg-gray-500 rounded cursor-pointer"><i
+                            :class="orderlatest || 'text-green-400'"
+                            class="w-full text-center fas fa-thumbs-up text-white"></i></div>
+                <div @click="orderlatest=true; orderTime()" class="bg-gray-500 rounded cursor-pointer"><i
+                            :class="!orderlatest || 'text-green-400'"
+                            class="w-full text-center fas fa-clock text-white"></i></div>
+            </div>
+        </div>
+        <div x-data x-ref="chatbox" x-cloak x-show="true" id="chatBox" style="display: none;"
+             class="flex-grow overflow-y-scroll p-2">
+            <div x-data="messagedata()" class="message grid grid-cols-6"
+                 x-on:messages-updated.window="msgs = $event.detail.msgs">
+                <template x-for="message in msgs">
+                    <div class="col-span-6 grid-cols-6 grid border-b border-gray-600 mb-1 py-1"
+                         x-show="message.approved===undefined || message.approved"> <!--message-->
+                        <span class="text-white col-span-5 font-semibold" x-text="message.from"></span> <span
+                                class="text-gray-500" x-text="timeConverter(message.time)"></span>
+                        <i x-show="message.unmoderated"
+                           @click="message.approved=true; message.unmoderated=false"
+                           class="fas fa-check text-white bg-green-500 text-center px-4 py-2 rounded col-span-3 mr-1 cursor-pointer"
+                           title="approve message"></i>
+                        <i x-show="message.unmoderated"
+                           @click="message.approved=false; message.unmoderated=false"
+                           class="fas fa-times text-white bg-red-500 text-center px-4 py-2 rounded col-span-3 ml-1 cursor-pointer"
+                           title="deny message"></i>
+                        <p class="text-gray-300 col-span-6"><span x-text="message.msg" class="break-words"></span></p>
+                        <span>
+                            <span class="text-gray-200" x-text="message.votes"></span>
+                            <i x-data="{liked:false}" @click="liked=!liked;liked?message.votes++:message.votes--"
+                               class="ml-1 fas fa-thumbs-up cursor-pointer"
+                               :class="!liked?'text-white':'text-blue-300'"></i>
+                        </span>
+                        <p class="text-center text-gray-300 italic col-span-6 cursor-pointer hover:text-white"
+                           x-show="message.replies && message.replies.length>0"
+                           x-text="message.showingReplies?'hide replies': 'show replies ('+message.replies.length+')'"
+                           @click="message.showingReplies = !message.showingReplies"></p>
+
+                        <div class="col-span-6 pl-3 border-l-2 border-gray-600" x-show="message.showingReplies">
+                            <!--replies here-->
+                            <template x-for="reply of message.replies">
+                                <div>
+                                    <div class="flex">
+                                        <span class="text-white font-semibold w-full" x-text="reply.from"></span> <span
+                                                class="text-gray-500" x-text="timeConverter(reply.time)"></span>
+                                    </div>
+                                    <p class="text-gray-300" x-text="reply.msg"></p>
+                                </div>
+                            </template>
+                        </div>
+                        <span x-show="!message.replying" @click="message.replying = true"
+                              class="text-gray-500 cursor-pointer hover:text-white col-span-6 text-center">
+                            <i class="fas fa-reply"></i>
+                            Thread reply
+                        </span>
+                        <form x-data="{reply:'', anonymous:false}" x-show="message.replying" x-transition.once
+                              class="border-b-2 inset-x-0 flex px-3 col-span-6"
+                              @submit.prevent="console.log(message.id + ':' + reply)">
+                            <input type="checkbox" name="anonymous" class="hidden" x-model="anonymous">
+                            <label for="anonymous" class="flex items-center cursor-pointer text-4 hover:text-1"
+                                   title="Don't show my name.">
+                                <i class="fas fa-ghost"></i>
+                            </label>
+                            <label for="chatInput" class="hidden" x-ref="replyInput">Chat input</label>
+                            <input x-model="reply" @keyup.escape="message.replying=false" maxlength="200"
+                                   placeholder="Send a message" autocomplete="off" type="text" class="border-none">
+                            <button class="fas fa-paper-plane text-4 hover:text-1 focus:outline-none"></button>
+                        </form>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <div class="border-t border-gray-600">
+            <form x-data="{msg:'', anonymous:false}" class="border-b inset-x-0 flex px-3 col-span-6"
+                  @submit.prevent="console.log(message.id + ':' + msg)">
+                <input type="checkbox" name="anonymous" class="hidden" x-model="anonymous">
+                <label for="anonymous" class="flex items-center cursor-pointer text-4 hover:text-1"
+                       title="Don't show my name.">
+                    <i class="fas fa-ghost"></i>
+                </label>
+                <label for="chatInput" class="hidden" x-ref="replyInput">Chat input</label>
+                <input x-model="msg" maxlength="200" placeholder="Send a message" autocomplete="off" type="text"
+                       class="border-none">
+                <button class="fas fa-paper-plane text-4 hover:text-1 focus:outline-none"></button>
+            </form>
+        </div>
+    </div>
+{{end}}

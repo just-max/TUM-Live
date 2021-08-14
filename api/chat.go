@@ -23,8 +23,10 @@ var stats = map[string]int{}
 var statsLock = sync.RWMutex{}
 
 func configGinChatRouter(router *gin.RouterGroup) {
-	wsGroup := router.Group("/:streamID")
+	wsGroup := router.Group("/c/:courseID/s/:streamID")
+	wsGroup.Use(tools.InitCourse)
 	wsGroup.Use(tools.InitStream)
+	wsGroup.GET("/messages", ChatMessages)
 	wsGroup.GET("/ws", ChatStream)
 	if m == nil {
 		log.Printf("creating melody")
@@ -83,7 +85,6 @@ func configGinChatRouter(router *gin.RouterGroup) {
 			Message:  chat.Msg,
 			StreamID: tumLiveContext.Stream.ID,
 			Admin:    tumLiveContext.User.ID == tumLiveContext.Course.UserID,
-			SendTime: time.Now().In(tools.Loc),
 		})
 		if broadcast, err := json.Marshal(ChatRep{
 			Msg:   chat.Msg,
@@ -95,6 +96,43 @@ func configGinChatRouter(router *gin.RouterGroup) {
 			})
 		}
 	})
+}
+
+//ChatMessages returns all existing messages for a stream
+func ChatMessages(c *gin.Context) {
+	foundContext, exists := c.Get("TUMLiveContext")
+	if !exists {
+		log.Error("context should exist but doesn't")
+		return
+	}
+	tumLiveContext := foundContext.(tools.TUMLiveContext)
+	messages, err := dao.GetMessagesForStream(tumLiveContext.Stream.ID)
+	if err != nil {
+		return
+	}
+	c.JSON(http.StatusOK, messagesToDto(messages, tumLiveContext))
+}
+
+func messagesToDto(messages []model.Chat, c tools.TUMLiveContext) []Message {
+	res := make([]Message, 0)
+	for _, message := range messages {
+		res = append(res, Message{
+			Approved:       true,
+			Unmoderated:    false,
+			Replying:       false,
+			ShowingReplies: true,
+			Id:             message.ID,
+			From:           message.UserName,
+			Me:             c.User != nil && (message.UserID == c.User.MatriculationNumber || message.UserID == fmt.Sprintf("%d", c.User.ID)),
+			Msg:            message.Message,
+			Time:           message.CreatedAt.Unix(),
+			Votes:          len(message.Votes),
+			Admin:          message.Admin,
+			Confirmed:      false,
+			Replies:        messagesToDto(message.Replies, c), // todo limit
+		})
+	}
+	return res
 }
 
 type ChatReq struct {
@@ -210,4 +248,25 @@ func removeUser(id string, jointime time.Time, recording bool) {
 		delete(stats, id)
 	}
 	statsLock.Unlock()
+}
+
+type ChatDTO struct {
+	Admin bool      `json:"admin"`
+	Msgs  []Message `json:"msgs"`
+}
+
+type Message struct {
+	Approved       bool      `json:"approved"`
+	Unmoderated    bool      `json:"unmoderated"`
+	Replying       bool      `json:"replying"`
+	ShowingReplies bool      `json:"showingReplies"`
+	Id             uint      `json:"id"`
+	From           string    `json:"from"`
+	Me             bool      `json:"me"`
+	Msg            string    `json:"msg"`
+	Time           int64     `json:"time"`
+	Votes          int       `json:"votes"`
+	Admin          bool      `json:"admin"`
+	Confirmed      bool      `json:"confirmed"`
+	Replies        []Message `json:"replies"`
 }

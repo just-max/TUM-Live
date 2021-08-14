@@ -1,10 +1,12 @@
+// @ts-nocheck
 class Watch {
     private chatInput: HTMLInputElement;
     private ws: WebSocket
 
     constructor() {
         let streamid = (document.getElementById("streamID") as HTMLInputElement).value;
-        this.ws = new WebSocket("wss://live.rbg.tum.de/api/chat/" + streamid + "/ws")
+        let courseid = (document.getElementById("courseID") as HTMLInputElement).value;
+        this.ws = new WebSocket(`ws://localhost:8081/api/chat/c/${courseid}/s/${streamid}/ws`)
         if (document.getElementById("chatForm") != null) {
             (document.getElementById("chatForm") as HTMLFormElement).addEventListener("submit", e => this.submitChat(e))
             document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight
