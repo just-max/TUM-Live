@@ -8,6 +8,9 @@ module.exports = {
     darkMode: 'class', // or 'media' or 'false'
     theme: {
         extend: {
+            maxWidth: {
+                'fhdScreen': '1800px',
+            },
             colors: {
                 'primary': '#0d1117',
                 'secondary': '#161b22',
