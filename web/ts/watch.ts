@@ -128,3 +128,54 @@ class Timer {
 }
 
 new Watch()
+
+/*
+ * Chat stuff:
+ */
+
+fetch("http://10.0.0.3:8081/api/chat/c/3/s/26/messages").then(response => response.json())
+    .then(data => {
+        messages.msgs = data;
+        let event = new CustomEvent("messages-updated", {
+            detail: {
+                msgs: JSON.parse(JSON.stringify(messages.msgs)) // deep copy elem, otherwise alipne wouldn't pick up on it.
+            }
+        });
+        window.dispatchEvent(event);
+        document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight;
+    });
+
+function dispatchChange() {
+    let event = new CustomEvent("messages-updated", {
+        detail: {
+            msgs: JSON.parse(JSON.stringify(messages.msgs)) // deep copy elem, otherwise alipne wouldn't pick up on it.
+        }
+    });
+    window.dispatchEvent(event);
+}
+
+function orderVotes() {
+    messages.msgs = messages.msgs.sort(function (a, b) {
+        return b.votes - a.votes;
+    });
+    dispatchChange();
+}
+
+function orderTime() {
+    messages.msgs = messages.msgs.sort(function (a, b) {
+        return b.time - a.time;
+    });
+    dispatchChange();
+}
+
+function timeConverter(UNIX_timestamp) {
+    let a = new Date(UNIX_timestamp * 1000);
+    let months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let year = a.getFullYear();
+    let month = months[a.getMonth()];
+    let date = a.getDate();
+    let hour = a.getHours();
+    let min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes();
+    let sec = a.getSeconds();
+    return hour + ':' + min;
+}

@@ -2,7 +2,9 @@ package dao
 
 import (
 	"TUM-Live/model"
+	"fmt"
 	"gorm.io/gorm/clause"
+	"time"
 )
 
 func AddMessage(chat model.Chat) {
@@ -11,7 +13,18 @@ func AddMessage(chat model.Chat) {
 
 //GetMessagesForStream returns all messages for a stream
 func GetMessagesForStream(streamID uint) (messages []model.Chat, err error) {
-	err = DB.Preload(clause.Associations).Find(&messages, "stream_id = ? AND reply_to IS NULL", streamID).Error
+	cacheKey := fmt.Sprintf("MessagesForStream%d", streamID)
+	if cached, found := Cache.Get(cacheKey); found {
+		return cached.([]model.Chat), nil
+	}
+	err = DB.
+		Preload(clause.Associations).
+		Order("created_at DESC").
+		Where("stream_id = ? AND reply_to IS NULL", streamID).
+		Find(&messages).Error
+	if err == nil {
+		Cache.SetWithTTL(cacheKey, messages, 1, time.Second) // short cache prevents DB bursts
+	}
 	return
 }
 
