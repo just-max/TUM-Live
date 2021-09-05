@@ -13,7 +13,7 @@
     {{if .IsAdminOfCourse}}
     <script async src="/static/assets/ts-dist/watch-admin.js?v={{.IndexData.VersionTag}}"></script>{{end}}
 </head>
-<body class="scrollbarThin">
+<body class="scrollbarThin" x-data="{'paused': {{$stream.Paused}}, 'streamID': {{$stream.Model.ID}}}" x-on:pausestart.window="paused=true" x-on:pauseend.window="paused=false">
 {{template "header" .IndexData.TUMLiveContext}}
 <input type="hidden" id="streamID" value="{{$stream.Model.ID}}">
 <input type="hidden" id="courseID" value="{{$stream.CourseID}}">
@@ -25,6 +25,9 @@
         </p></noscript>
     <div class="pt-3 px-2 md:px-8 mx-auto flex-1"> <!-- primary -->
         <div><!-- video -->
+            <div class="p-4 bg-indigo-700 bg-opacity-20 border-t-4 border-indigo-700 w-full font-semibold text-2 rounded-t" x-show="paused" x-cloak>
+                <i class="fas fa-info-circle"></i> This lecture is currently paused.
+            </div>
             <video
                     id="my-video"
                     class="video-js w-full vjs-fluid vjs-16-9"
@@ -99,6 +102,8 @@
                 <h3 class="text-4 mb-2">Administration:</h3>
                 <a href="?restart=1" title="Issues with the stream? Restart it."
                    class="bg-danger text-white rounded cursor-pointer p-2 text-sm">Restart stream</a>
+                <a @click="fetch(`/api/stream/${streamID}/pause?pause=${!paused}`)" href="#" :title="paused?'End Pause (Turns on video and audio)':'Pause lecture (Turns off video and audio)'"
+                   class="bg-info text-white rounded cursor-pointer p-2 text-sm" x-text="paused?'Resume Lecture':'Pause Lecture'"></a>
                 <p class="text-4 my-2">Presets:</p>
                 <div class="w-full overflow-x-scroll scrollbarThin">
                     <div class="flex flex-row gap-x-2">
@@ -131,7 +136,6 @@
 
     {{if $course.ChatEnabled}}
         <div x-show="true"
-             x-on:resize.window="alert()"
              class="flex flex-col w-full lg:w-1/4 max-w-full lg:max-w-52 mt-3"
              style="height: 80vh;"> <!-- sidebar-->
             {{template "chat"}}

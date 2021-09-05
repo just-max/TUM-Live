@@ -3,6 +3,7 @@ module TUM-Live
 go 1.17
 
 require (
+	github.com/RBG-TUM/go-extron v0.0.0-20210831075837-bc150c5f7462
 	github.com/antchfx/xmlquery v1.3.6
 	github.com/antchfx/xpath v1.2.0 // indirect
 	github.com/dgraph-io/ristretto v0.1.0

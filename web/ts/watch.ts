@@ -7,33 +7,29 @@ class Watch {
         let streamid = (document.getElementById("streamID") as HTMLInputElement).value;
         let courseid = (document.getElementById("courseID") as HTMLInputElement).value;
         this.ws = new WebSocket(`ws://localhost:8081/api/chat/c/${courseid}/s/${streamid}/ws`)
-        if (document.getElementById("chatForm") != null) {
-            (document.getElementById("chatForm") as HTMLFormElement).addEventListener("submit", e => this.submitChat(e))
-            document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight
-            this.chatInput = document.getElementById("chatInput") as HTMLInputElement
-            this.ws.onmessage = function (m) {
-                const data = JSON.parse(m.data)
-                if ("viewers" in data && document.getElementById("viewerCount") != null) {
-                    document.getElementById("viewerCount").innerText = data["viewers"]
-                } else if ("live" in data) {
-                    window.location.reload();
+        this.chatInput = document.getElementById("chatInput") as HTMLInputElement
+        this.ws.onmessage = function (m) {
+            console.log(m.data);
+            const data = JSON.parse(m.data);
+            if ("viewers" in data && document.getElementById("viewerCount") != null) {
+                document.getElementById("viewerCount").innerText = data["viewers"]
+            } else if ("live" in data) {
+                window.location.reload();
+            } else if ("paused" in data) {
+                const paused: boolean = data["paused"];
+                console.log(paused);
+                if (paused) {
+                    window.dispatchEvent(new CustomEvent("pausestart"))
                 } else {
-                    const chatElem = Watch.createMessageElement(data)
-                    document.getElementById("chatBox").appendChild(chatElem)
-                    document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight
+                    window.dispatchEvent(new CustomEvent("pauseend"))
                 }
-            }
-        } else {
-            this.ws.onmessage = function (m) {
-                const data = JSON.parse(m.data)
-                if ("viewers" in data) {
-                    document.getElementById("viewerCount").innerText = data["viewers"]
-                }
-                if ("live" in data) {
-                    window.location.reload();
-                }
+            } else {
+                const chatElem = Watch.createMessageElement(data)
+                document.getElementById("chatBox").appendChild(chatElem)
+                document.getElementById("chatBox").scrollTop = document.getElementById("chatBox").scrollHeight
             }
         }
+
     }
 
     submitChat(e: Event) {
@@ -133,7 +129,7 @@ new Watch()
  * Chat stuff:
  */
 
-fetch("http://10.0.0.3:8081/api/chat/c/3/s/26/messages").then(response => response.json())
+fetch("http://localhost:8081/api/chat/c/1/s/1/messages").then(response => response.json())
     .then(data => {
         messages.msgs = data;
         let event = new CustomEvent("messages-updated", {
