@@ -50,17 +50,78 @@ function unhideCourse(id: string, name: string) {
     document.location.reload();
 }
 
-function toggleColorScheme() {
-    //initial theme preference:
-    let darkTheme: boolean = localStorage.getItem("darkTheme") ? JSON.parse(localStorage.getItem("darkTheme")) : true;
-    //store opposite
-    localStorage.setItem("darkTheme", JSON.stringify(!darkTheme));
-    //set opposite class
-    if (!darkTheme) {
+function setupLocalStorageItem(key: string, default_val: any) {
+    let item = localStorage.getItem(key);
+    let value = item == null ? default_val : JSON.parse(item);
+    if (item == null && default_val != undefined) {
+        localStorage.setItem(key, JSON.stringify(value));
+    }
+    return value;
+}
+
+function getPrefersAutoDarkTheme() {
+    return JSON.parse(localStorage.getItem("autoDarkTheme"));
+}
+
+function getPrefersDarkTheme() {
+    // in auto dark mode, consult the media query, otherwise the saved preference
+    return getPrefersAutoDarkTheme() ?
+        window.matchMedia("(prefers-color-scheme: dark)").matches :
+        JSON.parse(localStorage.getItem("darkTheme"));
+}
+
+/** Update the color theme in the UI ("view") */
+function updateColorScheme() {
+    let darkTheme = getPrefersDarkTheme();
+    let autoDarkTheme = getPrefersAutoDarkTheme();
+
+    localStorage.setItem("darkTheme", JSON.stringify(darkTheme));
+
+    if (darkTheme) {
         document.documentElement.classList.add("dark");
     } else {
         document.documentElement.classList.remove("dark");
     }
+
+    let new_class = autoDarkTheme ? "fa-adjust" : (darkTheme ? "fa-moon" : "fa-sun");
+    let els = document.getElementsByClassName("color-scheme-switcher");
+    for (let i = 0; i < els.length; i++) {
+        els[i].classList.remove("fa-sun", "fa-moon", "fa-adjust");
+        els[i].classList.add(new_class);
+    }
+}
+
+/** Cycle the saved color theme, then update displayed color theme */
+function cycleColorScheme() {
+    let darkTheme = getPrefersDarkTheme();
+    let autoDarkTheme = getPrefersAutoDarkTheme();
+
+    // cycle through light, dark, auto
+    if (!autoDarkTheme && !darkTheme) {
+        darkTheme = true;
+    } else if (!autoDarkTheme && darkTheme) {
+        autoDarkTheme = true;
+    } else if (autoDarkTheme) {
+        autoDarkTheme = false;
+        darkTheme = false;
+    }
+
+    localStorage.setItem("darkTheme", darkTheme);
+    localStorage.setItem("autoDarkTheme", autoDarkTheme);
+
+    updateColorScheme();
+}
+
+function initColorScheme() {
+    // on first visit, default to dark theme (true) with no automatic switching (false)
+    setupLocalStorageItem("darkTheme", true);
+    setupLocalStorageItem("autoDarkTheme", false);
+
+    updateColorScheme();
+
+    // set up the listener, regardless of the autoDarkTheme preference, which is instead checked by the callback
+    window.matchMedia('(prefers-color-scheme: dark)')
+        .addEventListener('change', _ => updateColorScheme());
 }
 
 function initHiddenCourses() {
@@ -102,4 +163,5 @@ function initHiddenCourses() {
 
 window.onload = function () {
     initHiddenCourses();
+    initColorScheme();
 }
