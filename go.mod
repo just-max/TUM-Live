@@ -31,7 +31,7 @@ require (
 	google.golang.org/genproto v0.0.0-20220429170224-98d788798c3e // indirect
 	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.28.0
-	gorm.io/driver/mysql v1.3.3
+	gorm.io/driver/mysql v1.3.4
 	gorm.io/gorm v1.23.5
 	mvdan.cc/xurls/v2 v2.4.0
 )
@@ -41,7 +41,6 @@ require (
 	github.com/RBG-TUM/commons v0.0.0-20220406105618-030c095f6a1b
 	github.com/crewjam/saml v0.4.6
 	github.com/golang/mock v1.6.0
-	github.com/google/uuid v1.1.2
 	github.com/icholy/digest v0.1.15
 	github.com/joschahenningsen/TUM-Live/worker v0.0.0-20220501122901-59afcfe2763c
 	github.com/magiconair/properties v1.8.6
@@ -66,6 +65,7 @@ require (
 	github.com/go-playground/validator/v10 v10.10.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
+	github.com/google/uuid v1.1.2 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/huandu/xstrings v1.3.1 // indirect
