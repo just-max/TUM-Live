@@ -25,7 +25,7 @@
     "@fortawesome/fontawesome-free": "^6.1.1",
     "@fullcalendar/core": "^5.11.0",
     "@fullcalendar/daygrid": "^5.11.0",
-    "@fullcalendar/icalendar": "^5.11.0",
+    "@fullcalendar/icalendar": "^5.11.2",
     "@fullcalendar/list": "^5.11.0",
     "@fullcalendar/timegrid": "^5.11.0",
     "@silvermine/videojs-airplay": "^1.1.0",
