@@ -32,8 +32,8 @@ require (
 	google.golang.org/genproto v0.0.0-20220630174209-ad1d48641aa7 // indirect
 	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
-	gorm.io/driver/mysql v1.3.4
-	gorm.io/gorm v1.23.7
+	gorm.io/driver/mysql v1.3.5
+	gorm.io/gorm v1.23.8
 	mvdan.cc/xurls/v2 v2.4.0
 )
 
@@ -45,6 +45,7 @@ require (
 	github.com/icholy/digest v0.1.15
 	github.com/joschahenningsen/TUM-Live/worker v0.0.0-20220629170038-3924db026345
 	github.com/stretchr/testify v1.8.0
+	github.com/u2takey/go-utils v0.3.1
 )
 
 require (
