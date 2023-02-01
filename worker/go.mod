@@ -16,7 +16,7 @@ require (
 	github.com/tidwall/gjson v1.14.3
 	github.com/u2takey/ffmpeg-go v0.4.1
 	golang.org/x/sync v0.1.0
-	google.golang.org/grpc v1.50.1
+	google.golang.org/grpc v1.52.3
 	google.golang.org/protobuf v1.28.1
 )
 
@@ -41,10 +41,10 @@ require (
 	github.com/tklauser/numcpus v0.5.0 // indirect
 	github.com/u2takey/go-utils v0.3.1
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
-	golang.org/x/net v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
-	google.golang.org/genproto v0.0.0-20221027153422-115e99e71e1c // indirect
+	golang.org/x/net v0.4.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/text v0.5.0 // indirect
+	google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
