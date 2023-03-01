@@ -29,8 +29,8 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.13.0
 	golang.org/x/crypto v0.1.0
-	google.golang.org/genproto v0.0.0-20221027153422-115e99e71e1c // indirect
-	google.golang.org/grpc v1.50.1
+	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
+	google.golang.org/grpc v1.53.0
 	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/mysql v1.4.3
 	gorm.io/gorm v1.24.0
@@ -56,7 +56,7 @@ require (
 require (
 	github.com/felixge/fgprof v0.9.3 // indirect
 	github.com/google/pprof v0.0.0-20221010195024-131d412537ea // indirect
-	golang.org/x/oauth2 v0.1.0 // indirect
+	golang.org/x/oauth2 v0.4.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 )
 
@@ -69,7 +69,7 @@ require (
 	github.com/antchfx/xpath v1.2.1 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beevik/etree v1.1.0 // indirect
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/crewjam/httperr v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
@@ -112,9 +112,9 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.4.1 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	golang.org/x/net v0.1.0 // indirect
-	golang.org/x/sys v0.1.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/net v0.5.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
